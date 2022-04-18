@@ -1,5 +1,7 @@
 const router = require('express').Router(); // создали роутер
-const { getAllUsers, getlUserById, createUser, updateProfile, updateAvatar } = require('../controllers/users'); // импортировали контроллеры
+const {
+  getAllUsers, getlUserById, createUser, updateProfile, updateAvatar,
+} = require('../controllers/users'); // импортировали контроллеры
 // задали роуты
 router.get('/', getAllUsers);
 router.get('/:userId', getlUserById);
