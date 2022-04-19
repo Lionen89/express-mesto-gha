@@ -9,11 +9,19 @@ module.exports.getAllUsers = (req, res) => {
 
 module.exports.getlUserById = (req, res) => {
   const { userId } = req.params;
-
+  if (userId.length !== 24) {
+    throw Error('Неверно указан _id пользователя.');
+  }
   User.find({ _id: userId })
-    .then((user) => res.send({ user }))
+    .then((user) => {
+      if (!user.length) {
+        throw Error;
+      }
+      res.send({ user });
+    })
     .catch(() => {
       res.status(ErrCodeNotFound).send({ message: 'Пользователь по указанному _id не найден.' });
+      res.status(ErrCodeWrongData).send({ message: 'Неверно указан _id пользователя.' });
     });
 };
 module.exports.createUser = (req, res) => {

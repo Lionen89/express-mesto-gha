@@ -35,7 +35,12 @@ module.exports.setLike = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.send({ card }))
+    .then((card) => {
+      if (card === null) {
+        throw Error;
+      }
+      res.send({ card });
+    })
     .catch(() => {
       res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные.' });
       res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
@@ -49,7 +54,13 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .then((card) => res.send({ card }))
+    .then((card) => {
+      if (card === null) {
+        res.status(ErrCodeNotFound);
+        throw Error;
+      }
+      res.send({ card });
+    })
     .catch(() => {
       res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные.' });
       res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
