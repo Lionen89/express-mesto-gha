@@ -26,12 +26,14 @@ module.exports.deleteCard = (req, res) => {
   if (cardId.length !== 24) {
     return (res.status(ErrCodeWrongData).send({ message: 'Неверно указан _id карточки.' }));
   }
-  if (Card.find({ cardId }) === null) {
-    return (res.status(ErrCodeNotFound).send({ message: 'Карточка с указанным _id не найдена.' }));
-  }
-  return Card.findByIdAndRemove({ cardId })
-    .then((user) => res.send({ user }))
-    .catch(() => res.status(ErrCodeNotFound).send({ message: 'Карточка с указанным _id не найдена.' }));
+  return Card.findOneAndRdeleteManyemove({ _id: cardId })
+    .then((card) => {
+      if (card === null) {
+        return res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
+      }
+      return res.send({ card });
+    })
+    .catch(() => res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' }));
 };
 
 module.exports.setLike = (req, res) => {

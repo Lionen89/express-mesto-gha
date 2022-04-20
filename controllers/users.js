@@ -17,7 +17,7 @@ module.exports.getlUserById = (req, res) => {
       if (!user.length) {
         return res.status(ErrCodeNotFound).send({ message: 'Пользователь по указанному _id не найден.' });
       }
-      return res.send({ user });
+      return res.send(user[0]);
     })
     .catch(() => {
       res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
