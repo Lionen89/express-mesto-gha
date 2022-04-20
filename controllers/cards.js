@@ -26,7 +26,7 @@ module.exports.deleteCard = (req, res) => {
   if (cardId.length !== 24) {
     return (res.status(ErrCodeWrongData).send({ message: 'Неверно указан _id карточки.' }));
   }
-  return Card.findOneAndRdeleteManyemove({ _id: cardId })
+  return Card.findOneAndRemove({ _id: cardId })
     .then((card) => {
       if (card === null) {
         return res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
