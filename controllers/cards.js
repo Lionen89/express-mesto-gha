@@ -23,43 +23,51 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
-
-  Card.deleteMany({ cardId })
+  if (cardId.length !== 24) {
+    return (res.status(ErrCodeWrongData).send({ message: 'Неверно указан _id карточки.' }));
+  }
+  if (Card.find({ cardId }) === null) {
+    return (res.status(ErrCodeNotFound).send({ message: 'Карточка с указанным _id не найдена.' }));
+  }
+  return Card.findByIdAndRemove({ cardId })
     .then((user) => res.send({ user }))
     .catch(() => res.status(ErrCodeNotFound).send({ message: 'Карточка с указанным _id не найдена.' }));
 };
 
 module.exports.setLike = (req, res) => {
-  Card.findByIdAndUpdate(
+  if (req.params.cardId.length !== 24) {
+    return (res.status(ErrCodeWrongData).send({ message: 'Неверно указан _id карточки.' }));
+  }
+  return Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
     .then((card) => {
       if (card === null) {
-        throw Error;
+        return res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
       }
-      res.send({ card });
+      return res.send({ card });
     })
     .catch(() => {
-      res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные.' });
-      res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
       res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
     });
 };
 
 module.exports.dislikeCard = (req, res) => {
-  Card.findByIdAndUpdate(
+  if (req.params.cardId.length !== 24) {
+    return (res.status(ErrCodeWrongData).send({ message: 'Неверно указан _id карточки.' }));
+  }
+  return Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
     .then((card) => {
       if (card === null) {
-        res.status(ErrCodeNotFound);
-        throw Error;
+        return res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
       }
-      res.send({ card });
+      return res.send({ card });
     })
     .catch(() => {
       res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные.' });

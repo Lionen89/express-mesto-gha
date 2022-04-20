@@ -37,7 +37,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use('*', (req, res) => {
-  res.status(ErrCodeNotFound).send({ message: 'Страницы по данный адресу не существует' });
+  res.status(ErrCodeNotFound).send({ message: 'Страницы по данному адресу не существует' });
 });
 
 app.listen(PORT, () => {
