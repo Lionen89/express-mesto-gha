@@ -59,8 +59,12 @@ module.exports.setLike = (req, res) => {
       }
       return res.send({ card });
     })
-    .catch(() => {
-      res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ErrCodeWrongData).send({ message: 'Невалидный id ' });
+      } else {
+        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      }
     });
 };
 

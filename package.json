@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "lint": "npx eslint",
+    "lint": "npx eslint ." ,
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
