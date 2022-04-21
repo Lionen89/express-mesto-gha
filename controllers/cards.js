@@ -15,12 +15,14 @@ module.exports.createCard = (req, res) => {
 
   Card.create({ name, link, owner })
     .then((card) => res.send({ card }))
-    .catch(() => {
-      res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные при создании карточки.' });
-      res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные при создании карточки.' });
+      } else {
+        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      }
     });
 };
-
 module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
   if (cardId.length !== 24) {
@@ -33,7 +35,13 @@ module.exports.deleteCard = (req, res) => {
       }
       return res.send({ card });
     })
-    .catch(() => res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ErrCodeWrongData).send({ message: 'Невалидный id ' });
+      } else {
+        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      }
+    });
 };
 
 module.exports.setLike = (req, res) => {
@@ -71,9 +79,11 @@ module.exports.dislikeCard = (req, res) => {
       }
       return res.send({ card });
     })
-    .catch(() => {
-      res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные.' });
-      res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
-      res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ErrCodeWrongData).send({ message: 'Невалидный id ' });
+      } else {
+        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      }
     });
 };

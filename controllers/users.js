@@ -12,15 +12,19 @@ module.exports.getlUserById = (req, res) => {
   if (userId.length !== 24) {
     return (res.status(ErrCodeWrongData).send({ message: 'Неверно указан _id пользователя.' }));
   }
-  return User.find({ _id: userId })
+  return User.findById(userId)
     .then((user) => {
-      if (!user.length) {
+      if (!user) {
         return res.status(ErrCodeNotFound).send({ message: 'Пользователь по указанному _id не найден.' });
       }
-      return res.send(user[0]);
+      return res.send(user);
     })
-    .catch(() => {
-      res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ErrCodeWrongData).send({ message: 'Невалидный id ' });
+      } else {
+        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      }
     });
 };
 module.exports.createUser = (req, res) => {
@@ -28,9 +32,12 @@ module.exports.createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.send({ user }))
-    .catch(() => {
-      res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные при создании пользователя.' });
-      res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные.' });
+      } else {
+        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      }
     });
 };
 
@@ -43,13 +50,19 @@ module.exports.updateProfile = (req, res) => {
   }, {
     new: true, // обработчик then получит на вход обновлённую запись
     runValidators: true, // данные будут валидированы перед изменением
-    upsert: true, // если пользователь не найден, он будет создан
   })
-    .then((user) => res.send({ user }))
-    .catch(() => {
-      res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      res.status(ErrCodeNotFound).send({ message: 'Пользователь по указанному _id не найден.' });
-      res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+    .then((user) => {
+      if (!user) {
+        res.status(ErrCodeNotFound).send({ message: 'Пользователь по указанному _id не найден.' });
+      }
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные.' });
+      } else {
+        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      }
     });
 };
 
@@ -59,12 +72,18 @@ module.exports.updateAvatar = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true, // обработчик then получит на вход обновлённую запись
     runValidators: true, // данные будут валидированы перед изменением
-    upsert: true, // если пользователь не найден, он будет создан
   })
-    .then((user) => res.send({ user }))
-    .catch(() => {
-      res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
-      res.status(ErrCodeNotFound).send({ message: 'Пользователь по указанному _id не найден.' });
-      res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+    .then((user) => {
+      if (!user) {
+        res.status(ErrCodeNotFound).send({ message: 'Пользователь по указанному _id не найден.' });
+      }
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные.' });
+      } else {
+        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      }
     });
 };
