@@ -1,11 +1,11 @@
 const router = require('express').Router(); // создали роутер
 const {
-  getAllUsers, getlUserById, getlCurrentUser, updateProfile, updateAvatar,
+  getAllUsers, getlUserById, getCurrentUser, updateProfile, updateAvatar,
 } = require('../controllers/users'); // импортировали контроллеры
 // задали роуты
 router.get('/', getAllUsers);
+router.get('/me', getCurrentUser);
 router.get('/:userId', getlUserById);
-router.get('/me', getlCurrentUser);
 router.patch('/me', updateProfile);
 router.patch('/me/avatar', updateAvatar);
 

@@ -8,8 +8,21 @@ module.exports.getAllUsers = (req, res) => {
     .then((users) => res.send({ users }))
     .catch(() => res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' }));
 };
-module.exports.getlCurrentUser = (req, res) => {
-
+module.exports.getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res.status(ErrCodeNotFound).send({ message: 'Пользователь по указанному _id не найден.' });
+      }
+      return res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ErrCodeWrongData).send({ message: 'Невалидный id ' });
+      } else {
+        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      }
+    });
 };
 
 module.exports.getlUserById = (req, res) => {
@@ -103,7 +116,7 @@ module.exports.updateAvatar = (req, res) => {
 };
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 's!Cr1T_kEy', { expiresIn: '7d' });
       res.cookie('jwt', token, {

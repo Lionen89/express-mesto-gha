@@ -3,6 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { ErrCodeNotFound } = require('./constants');
+const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const {
   PORT = 3000,
@@ -32,11 +34,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/users', require('./routes/users'));
+app.post('/signin', login);
+app.post('/signup', createUser);
 
-app.use('/cards', require('./routes/cards'));
+app.use('/users', auth, require('./routes/users'));
 
-app.use('*', (req, res) => {
+app.use('/cards', auth, require('./routes/cards'));
+
+app.use('*', auth, (req, res) => {
   res.status(ErrCodeNotFound).send({ message: 'Страницы по данному адресу не существует' });
 });
 
