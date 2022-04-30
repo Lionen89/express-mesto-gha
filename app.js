@@ -39,6 +39,15 @@ app.post('/signin', celebrate({
 }), login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string()
+      .regex(
+        /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/,
+      // /^(http:\/\/www.|https:\/\/www.|ftp:\/\/www.|www.){1}([0-9A-Za-z]+\.)([A-Za-z]){2,3}(\/)?/
+      ),
+
+    // /^((https|http):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Я0-9\\-]*\.))/,
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),

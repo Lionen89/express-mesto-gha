@@ -1,7 +1,7 @@
 const Card = require('../models/card');
 const { ErrCodeWrongData, ErrCodeNotFound, ErrCodeDefault } = require('../constants');
-// const BadRequestError = require('../errors/bad-request-err');
-// const NotFoundError = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -11,7 +11,7 @@ module.exports.getCards = (req, res, next) => {
     });
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
@@ -19,9 +19,9 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({ card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ErrCodeWrongData).send({ message: 'Переданы некорректные данные при создании карточки.' });
+        next(new BadRequestError('Переданы некорректные данные при создании карточки.'));
       } else {
-        res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+        next(new Error('Произошла ошибка.'));
       }
     });
 };
@@ -29,7 +29,7 @@ module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
   const { ownerId } = req.owner._id;
   if (cardId.length !== 24) {
-    return (res.status(ErrCodeWrongData).send({ message: 'Неверно указан _id карточки.' }));
+    throw new BadRequestError('Неверно указан _id карточки.');
   }
   return Card.findOneAndRemove({ _id: cardId })
     .then((card) => {
