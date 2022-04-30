@@ -1,5 +1,5 @@
 const router = require('express').Router(); // создали роутер
-const { celebrate, Joi } = require('celebrate');
+// const { celebrate, Joi } = require('celebrate');
 const {
   getCards, createCard, deleteCard, setLike, dislikeCard,
 } = require('../controllers/cards'); // импортировали контроллеры
