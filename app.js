@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
-const { ErrCodeNotFound } = require('./constants');
+const ForbiddenError = require('./errors/forbidden-err');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
@@ -48,9 +48,10 @@ app.use('/users', auth, require('./routes/users'));
 
 app.use('/cards', auth, require('./routes/cards'));
 
-app.use('*', auth, (req, res) => {
-  res.status(ErrCodeNotFound).send({ message: 'Страницы по данному адресу не существует' });
+app.use('*', auth, () => {
+  throw new ForbiddenError('Страницы по данному адресу не существует');
 });
+
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res
