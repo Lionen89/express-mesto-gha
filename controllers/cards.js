@@ -1,11 +1,13 @@
 const Card = require('../models/card');
 const { ErrCodeWrongData, ErrCodeNotFound, ErrCodeDefault } = require('../constants');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ cards }))
     .catch(() => {
-      res.status(ErrCodeDefault).send({ message: 'Произошла ошибка.' });
+      next(new Error('Произошла ошибка.'));
     });
 };
 
@@ -25,13 +27,16 @@ module.exports.createCard = (req, res) => {
 };
 module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
+  const { ownerId } = req.owner._id;
   if (cardId.length !== 24) {
     return (res.status(ErrCodeWrongData).send({ message: 'Неверно указан _id карточки.' }));
   }
   return Card.findOneAndRemove({ _id: cardId })
     .then((card) => {
       if (card === null) {
-        return res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
+        res.status(ErrCodeNotFound).send({ message: 'Передан несуществующий _id карточки.' });
+      } else if (!card.owner._id === ownerId) {
+        res.send({ card });
       }
       return res.send({ card });
     })

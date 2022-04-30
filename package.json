@@ -37,6 +37,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.0",
     "celebrate": "^15.0.1",
+    "cookie-parser": "^1.4.6",
     "express": "^4.17.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.0",

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 const handleAuthError = (res) => {
   res
@@ -16,12 +17,13 @@ module.exports = (req, res, next) => {
   }
 
   const token = extractBearerToken(authorization);
+
   let payload;
 
   try {
     payload = jwt.verify(token, 's!Cr1T_kEy');
   } catch (err) {
-    return handleAuthError(res);
+    next(new UnauthorizedError('Необходима авторизация'));
   }
 
   req.user = payload; // записываем пейлоуд в объект запроса
