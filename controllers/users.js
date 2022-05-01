@@ -35,17 +35,16 @@ module.exports.getlUserById = (req, res, next) => {
   }
   return User.findById(userId)
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь по указанному _id не найден.');
+      if (user === null) {
+        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
       }
       return res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Невалидный id '));
-      } else {
-        next(new Error('Произошла ошибка.'));
       }
+      next(new Error('Произошла ошибка.'));
     });
 };
 module.exports.createUser = (req, res, next) => {

@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -26,18 +27,18 @@ module.exports.createCard = (req, res, next) => {
 };
 module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  const { ownerId } = req.owner._id;
+  const { ownerId } = req.user._id;
   if (cardId.length !== 24) {
-    throw new BadRequestError('Неверно указан _id карточки.');
+    next(new BadRequestError('Неверно указан _id карточки.'));
   }
-  return Card.findOneAndRemove({ _id: cardId })
+  Card.findOneAndRemove({ _id: cardId })
     .then((card) => {
       if (card === null) {
-        throw new NotFoundError('Передан несуществующий _id карточки.');
+        next(new NotFoundError('Передан несуществующий _id карточки.'));
       } else if (!card.owner._id === ownerId) {
-        throw new BadRequestError('Вы не можете удалить не свою карточку.');
+        next(new ForbiddenError('Вы не можете удалить не свою карточку.'));
       }
-      return res.send({ card });
+      res.send({ card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -50,7 +51,7 @@ module.exports.deleteCard = (req, res, next) => {
 
 module.exports.setLike = (req, res, next) => {
   if (req.params.cardId.length !== 24) {
-    throw new BadRequestError('Неверно указан _id карточки.');
+    next(new BadRequestError('Неверно указан _id карточки.'));
   }
   return Card.findByIdAndUpdate(
     req.params.cardId,
@@ -59,7 +60,7 @@ module.exports.setLike = (req, res, next) => {
   )
     .then((card) => {
       if (card === null) {
-        throw new NotFoundError('Передан несуществующий _id карточки.');
+        next(new NotFoundError('Передан несуществующий _id карточки.'));
       }
       return res.send(card);
     })
@@ -74,18 +75,17 @@ module.exports.setLike = (req, res, next) => {
 
 module.exports.dislikeCard = (req, res, next) => {
   if (req.params.cardId.length !== 24) {
-    throw new BadRequestError('Неверно указан _id карточки.');
+    next(new BadRequestError('Неверно указан _id карточки.'));
   }
-  return Card.findByIdAndUpdate(
+  Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
     .then((card) => {
       if (card === null) {
-        throw new NotFoundError('Передан несуществующий _id карточки.');
-      }
-      return res.send(card);
+        next(new NotFoundError('Передан несуществующий _id карточки.'));
+      } else res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {

@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
-const ForbiddenError = require('./errors/forbidden-err');
+const NotFoundError = require('./errors/not-found-err');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
@@ -42,11 +42,8 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string()
       .regex(
-        /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/,
-      // /^(http:\/\/www.|https:\/\/www.|ftp:\/\/www.|www.){1}([0-9A-Za-z]+\.)([A-Za-z]){2,3}(\/)?/
+        /^(http:\/\/|https:\/\/|\www.){1}([0-9A-Za-z]+\.)([A-Za-z]){2,3}(\/)?/,
       ),
-
-    // /^((https|http):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Я0-9\\-]*\.))/,
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -57,7 +54,7 @@ app.use('/users', auth, require('./routes/users'));
 app.use('/cards', auth, require('./routes/cards'));
 
 app.use('*', auth, () => {
-  throw new ForbiddenError('Страницы по данному адресу не существует');
+  throw new NotFoundError('Страницы по данному адресу не существует');
 });
 app.use(errors());
 app.use((err, req, res, next) => {

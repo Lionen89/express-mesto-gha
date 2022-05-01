@@ -8,12 +8,12 @@ router.get('/', getAllUsers);
 router.get('/me', getCurrentUser);
 
 router.get('/:userId', celebrate({
-  params: Joi.object().keys({
-    userID: Joi.string().required().length(24).hex,
-  }),
   headers: Joi.object().keys({
     authorization: Joi.string().required().min(2).max(200),
   }).unknown(true),
+  params: Joi.object().keys({
+    userId: Joi.string().required().length(24),
+  }),
 }), getlUserById);
 
 router.patch('/me', celebrate({
@@ -25,7 +25,10 @@ router.patch('/me', celebrate({
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().min(2).max(30),
+    avatar: Joi.string()
+      .regex(
+        /^(http:\/\/|https:\/\/|\www.){1}([0-9A-Za-zА-Яа-я\-._~:/?#[\]@!$&'()*+,;=]+\.)([A-Za-z]){2,3}(\/)?/,
+      ),
   }),
 }), updateAvatar);
 
