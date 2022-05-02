@@ -42,7 +42,7 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string()
       .regex(
-        /^(http:\/\/|https:\/\/|\www.){1}([0-9A-Za-z]+\.)([A-Za-z]){2,3}(\/)?/,
+        /^(http:\/\/|https:\/\/|\www.){1}([0-9A-Za-z\-._~:/?#[\]@!$&'()*+,;=]+\.)([A-Za-z]){2,3}(\/)?/,
       ),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
