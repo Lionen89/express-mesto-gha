@@ -33,10 +33,9 @@ module.exports.deleteCard = (req, res, next) => {
   }
   Card.findById({ _id: cardId })
     .then((card) => {
-      const owner = JSON.stringify(card.owner);
       if (card === null) {
         next(new NotFoundError('Передан несуществующий _id карточки.'));
-      } else if (owner !== ownerId) {
+      } else if (card.owner.toHexString() !== ownerId) {
         next(new ForbiddenError('Вы не можете удалить не свою карточку.'));
       }
       Card.findOneAndRemove({ _id: cardId })
