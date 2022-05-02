@@ -27,18 +27,22 @@ module.exports.createCard = (req, res, next) => {
 };
 module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  const { ownerId } = req.user._id;
+  const ownerId = req.user._id;
   if (cardId.length !== 24) {
     next(new BadRequestError('Неверно указан _id карточки.'));
   }
-  Card.findOneAndRemove({ _id: cardId })
+  Card.findById({ _id: cardId })
     .then((card) => {
+      const owner = JSON.stringify(card.owner);
       if (card === null) {
         next(new NotFoundError('Передан несуществующий _id карточки.'));
-      } else if (!card.owner._id === ownerId) {
+      } else if (owner !== ownerId) {
         next(new ForbiddenError('Вы не можете удалить не свою карточку.'));
       }
-      res.send({ card });
+      Card.findOneAndRemove({ _id: cardId })
+        .then(() => {
+          res.send(card);
+        });
     })
     .catch((err) => {
       if (err.name === 'CastError') {

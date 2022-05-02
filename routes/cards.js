@@ -30,6 +30,13 @@ router.put('/:cardId/likes', celebrate({
     authorization: Joi.string().required().min(2).max(200),
   }).unknown(true),
 }), setLike);
-router.delete('/:cardId/likes', dislikeCard);
+router.delete('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().required().length(24),
+  }),
+  headers: Joi.object().keys({
+    authorization: Joi.string().required().min(2).max(200),
+  }).unknown(true),
+}), dislikeCard);
 
 module.exports = router; // экспортировали роуты
