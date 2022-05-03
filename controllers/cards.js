@@ -34,11 +34,11 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findById({ _id: cardId })
     .then((card) => {
       if (card === null) {
-        next(new NotFoundError('Передан несуществующий _id карточки.'));
-      } else if (card.owner.toHexString() !== ownerId) {
-        next(new ForbiddenError('Вы не можете удалить не свою карточку.'));
+        return next(new NotFoundError('Передан несуществующий _id карточки.'));
+      } if (card.owner.toHexString() !== ownerId) {
+        return next(new ForbiddenError('Вы не можете удалить не свою карточку.'));
       }
-      Card.findOneAndRemove({ _id: cardId })
+      return Card.findOneAndRemove({ _id: cardId })
         .then(() => {
           res.send(card);
         });
@@ -63,7 +63,7 @@ module.exports.setLike = (req, res, next) => {
   )
     .then((card) => {
       if (card === null) {
-        next(new NotFoundError('Передан несуществующий _id карточки.'));
+        return next(new NotFoundError('Передан несуществующий _id карточки.'));
       }
       return res.send(card);
     })

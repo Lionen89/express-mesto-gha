@@ -15,16 +15,12 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь по указанному _id не найден.');
+        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
       }
       return res.send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Невалидный id '));
-      } else {
-        next(new Error('Произошла ошибка.'));
-      }
+    .catch(() => {
+      next(new Error('Произошла ошибка.'));
     });
 };
 
@@ -87,7 +83,7 @@ module.exports.updateProfile = (req, res, next) => {
   })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь по указанному _id не найден.');
+        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
       }
       res.send(user);
     })
@@ -109,9 +105,9 @@ module.exports.updateAvatar = (req, res, next) => {
   })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь по указанному _id не найден.');
+        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
       }
-      res.send(user);
+      return res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
